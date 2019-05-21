@@ -101,6 +101,11 @@ RunModel <- function() {
   if (OutOfRange(input$TSpec,0,1,"Test specificity")) D$err<-T
   if (OutOfRange(input$HSens,0,1,"Herd sensitivity")) D$err<-T
   if (OutOfRange(input$HSpec,0,1,"Herd specificity")) D$err<-T
+  if (input$R/input$N*input$TSens < 1-input$TSpec) {
+    showModal(modalDialog(title="Error",paste("Specificity is too low.")))
+    D$err<-T
+  }
+    
   if (D$err) return()
   imperfect.testing(list(sens=input$TSens,spec=input$TSpec),
                     list(N=floor(input$N),R=floor(input$R)),
