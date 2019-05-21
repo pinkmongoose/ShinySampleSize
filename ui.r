@@ -1,3 +1,8 @@
+#ui.r
+#Darren Green
+#21/05/2019
+
+
 library(shiny)
 shinyUI(
   
@@ -7,8 +12,8 @@ shinyUI(
     fluidRow(
       column(3,"Population size"),
       column(3,numericInput("N",NULL,50,min=1,max=10000,step=1)),
-      column(3,"Prevalence (number of reactors)"),
-      column(3,numericInput("R",NULL,5,min=1,max=10000,step=1))
+      column(3,"Percentage prevalence / number of reactors"),
+      column(3,numericInput("R",NULL,0.1,min=0,max=10000,step=1))
     ),
     h4("Test parameters"),
     fluidRow(
@@ -20,9 +25,9 @@ shinyUI(
     h4("Testing targets"),
     fluidRow(
       column(3,"Herd sensitivity"),
-      column(3,numericInput("HSens",NULL,0.95,min=0,max=1,step=0.01)),
+      column(3,numericInput("HSens",NULL,0.95,min=0,max=0.98,step=0.01)),
       column(3,"Herd specificity"),
-      column(3,numericInput("HSpec",NULL,0.95,min=0,max=1,step=0.01))
+      column(3,numericInput("HSpec",NULL,0.95,min=0,max=0.98,step=0.01))
     ),
     actionButton("submit","GO!"),
 #    actionButton("stop","STOP!"),

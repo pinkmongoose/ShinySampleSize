@@ -1,4 +1,6 @@
-
+#Sampling.r
+#Darren Green
+#21/05/2019
 
 #pop <- list(N=50, R=5) # population size, expected number of reactors
 #test <- list(sens=0.95, spec=0.98) # test parameters
@@ -6,8 +8,8 @@
 
 
 sdist <- function(vp, vn, test) { # distribution of + tests out of vp/vn +/- samples.
-#  if (vp+vn > 100) {
-#      return(dsinib(vp+vn, c(vp,vn), c(test$sens,test$spec)))
+  #  if (vp+vn > 100) {
+  #      return(dsinib(vp+vn, c(vp,vn), c(test$sens,test$spec)))
   s <- array(0,vp+vn+1)
   dp <- dbinom(0:vp, vp, test$sens)
   dn <- dbinom(0:vn, vn, 1-test$spec)
@@ -49,7 +51,7 @@ imperfect.testing <- function(test, pop, target) {
   repeat {
     h <- herd.test(test, pop, n, cutpoint)
     setProgress(value=n)
-    cat(n, cutpoint, h$sens, h$spec, "\n")
+#    cat(n, cutpoint, h$sens, h$spec, "\n")
     if (h$sens < target$sens) {
       lo.n <- n
     } else {
@@ -95,25 +97,25 @@ OutOfRange <- function(x,min,max,name) {
 
 RunModel <- function() {
   D$err <- F
-  if (OutOfRange(input$N,1,10000,"Population size")) D$err<-T
-  if (OutOfRange(input$R,1,input$N,"Number of reactors")) D$err<-T
-  if (OutOfRange(input$TSens,0,1,"Test sensitivity")) D$err<-T
-  if (OutOfRange(input$TSpec,0,1,"Test specificity")) D$err<-T
-  if (OutOfRange(input$HSens,0,1,"Herd sensitivity")) D$err<-T
-  if (OutOfRange(input$HSpec,0,1,"Herd specificity")) D$err<-T
-  if (input$R/input$N*input$TSens < 1-input$TSpec) {
-    showModal(modalDialog(title="Error",paste("Specificity is too low.")))
-    D$err<-T
+  if (OutOfRange(input$N,1,10000,"Population size")) {D$err<-T; return()}
+  if (OutOfRange(input$R,0,input$N,"Number of reactors")) {D$err<-T; return()}
+  if (OutOfRange(input$TSens,0,1,"Test sensitivity")) {D$err<-T; return()}
+  if (OutOfRange(input$TSpec,0,1,"Test specificity")) {D$err<-T; return()}
+  if (OutOfRange(input$HSens,0,0.98,"Herd sensitivity")) {D$err<-T; return()}
+  if (OutOfRange(input$HSpec,0,0.98,"Herd specificity")) {D$err<-T; return()}
+  pop <- list(N=input$N,R=input$R)
+  if (pop$R<1) {
+    pop$R<-floor(pop$R*pop$N)
+    pop$N<-floor(pop$N)
+  } else {
+    pop$R<-floor(pop$R)
+    pop$N<-floor(pop$N)
   }
-    
-  if (D$err) return()
+  if (pop$R/pop$N*input$TSens < 1-input$TSpec) {
+    showModal(modalDialog(title="Error",paste("Specificity is too low.")))
+    D$err<-T; return()
+  }
   imperfect.testing(list(sens=input$TSens,spec=input$TSpec),
-                    list(N=floor(input$N),R=floor(input$R)),
+                    pop,
                     list(sens=input$HSens,spec=input$HSpec))
 }
-
-st<-Sys.time()
-sdist(100,900,test)
-et<-Sys.time()
-print(et-st)
-
