@@ -42,6 +42,29 @@ herd.test <- function(test, pop, n, cutpoint) {
   return(list(sens=sens,spec=spec))
 }
 
+herd.test.all <- function(test, pop, n) {
+  t.sens <- tdist(test, pop, n)
+  t.spec <- dbinom(0:n, n, 1-test$spec)
+  sens <- sapply(0:(n-1), function(cutpoint) {
+    sum(t.sens[(cutpoint+2):(n+1)])
+  })
+  spec <- sapply(0:(n-1), function(cutpoint) {
+    1-sum(t.spec[(cutpoint+2):(n+1)])
+  })
+  return(cbind(sens,spec))
+}
+
+DrawROC <- function() {
+  if (!length(D$H)) plot.new()
+  else {
+    plot(1-D$H$spec,D$H$sens,type="o",xlim=c(0,1),ylim=c(0,1),xlab="1-specificity",ylab="sensitivity",main=paste("ROC for n =",D$Hn))
+    text(1-D$H$spec,D$H$sens,labels=0:(D$Hn-1),cex=0.7,pos=3)
+    lines(x=c(1-D$Hspec,1-D$Hspec),y=c(0,1),col="red")
+    lines(y=c(D$Hsens,D$Hsens),x=c(0,1),col="red")
+    lines(y=c(0,1),x=c(0,1),col="blue")
+  }
+}
+
 imperfect.testing <- function(test, pop, target) {
   warn <- ""
   lo.n <- 1
@@ -66,6 +89,7 @@ imperfect.testing <- function(test, pop, target) {
         res <- c(0,0,0,0,pop$N,pop$R)
         D$results <- res
         D$warn <- warn
+        D$H <- NULL
         return(res)
       }
       if (h$spec < target$spec) {
@@ -75,12 +99,17 @@ imperfect.testing <- function(test, pop, target) {
           warning(warn)
           res <- c(0,0,0,0,pop$N,pop$R)
           D$results <- res
+          D$H <- NULL
           return(res)
         }
         hi.n <- pop$N
       } else {
         res <- c(n,cutpoint,h$sens,h$spec,pop$N,pop$R)
         D$results <- res
+        D$H <- as.data.frame(herd.test.all(test, pop, n))
+        D$Hsens <- target$sens
+        D$Hspec <- target$spec
+        D$Hn <- n
         D$warn <- warn
         return(res)
       }      
@@ -97,7 +126,7 @@ OutOfRange <- function(x,min,max,name) {
 
 RunModel <- function() {
   D$err <- F
-  if (OutOfRange(input$N,1,10000,"Population size")) {D$err<-T; return()}
+  if (OutOfRange(input$N,1,25000,"Population size")) {D$err<-T; return()}
   if (OutOfRange(input$R,0,input$N,"Number of reactors")) {D$err<-T; return()}
   if (OutOfRange(input$TSens,0,1,"Test sensitivity")) {D$err<-T; return()}
   if (OutOfRange(input$TSpec,0,1,"Test specificity")) {D$err<-T; return()}

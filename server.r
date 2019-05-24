@@ -65,6 +65,9 @@ shinyServer(
       if (D$active) format(D$results[4],digits=4)
     })
 
+    output$plot <- renderPlot({
+      if (D$active) DrawROC()
+    })
   }
   
 )
