@@ -2,33 +2,53 @@
 #Darren Green
 #21/05/2019
 
+
 library(shiny)
 shinyUI(
   
   fluidPage(
-    titlePanel(
-      "Prevalence in pooled testing"),
-    sidebarLayout(
-      sidebarPanel(
-        helpText("Select values for the model run and then click 'GO!'."),
-        h4("Sample sizes"),
-        sliderInput("m","size of each pool",min=1,max=250,step=1,value=10),
-        sliderInput("n","number of pools",min=1,max=250,step=1,value=10),
-        h4("Test values"),
-        sliderInput("sens","test sensitivity",min=0.5,max=1,step=0.01,value=1),
-        sliderInput("spec","test specificity",min=0.5,max=1,step=0.01,value=1),
-        h4("Other parameters"),
-        sliderInput("ci","confidence interval",min=0.1,max=0.998,step=0.01,value=0.95),
-        actionButton("submit","GO!")
-      ),
-      mainPanel(
-        h4("Sample prevalence versus number of positive pools"),
-        plotOutput("plot",height="500px"),
-        tableOutput("table")
-      )
+    titlePanel("Sample size calculation for freedom from disease with imperfect testing"),
+    h4("Population parameters"),
+    fluidRow(
+      column(3,"Population size"),
+      column(3,numericInput("N",NULL,50,min=1,max=25000,step=1)),
+      column(3,"Percentage prevalence / number of reactors"),
+      column(3,numericInput("R",NULL,0.1,min=0,max=25000,step=1))
     ),
+    h4("Test parameters"),
+    fluidRow(
+      column(3,"Test sensitivity"),
+      column(3,numericInput("TSens",NULL,1,min=0,max=1,step=0.01)),
+      column(3,"Test specificity"),
+      column(3,numericInput("TSpec",NULL,1,min=0,max=1,step=0.01))
+    ),
+    h4("Testing targets"),
+    fluidRow(
+      column(3,"Herd sensitivity"),
+      column(3,numericInput("HSens",NULL,0.95,min=0,max=0.98,step=0.01)),
+      column(3,"Herd specificity"),
+      column(3,numericInput("HSpec",NULL,0.95,min=0,max=0.98,step=0.01))
+    ),
+    actionButton("submit","GO!"),
+#    actionButton("stop","STOP!"),
+    h4("Model output"),
+    fluidRow(
+      column(3,"Herd sensitivity"),
+      column(3,textOutput("oHSens")),
+      column(3,"Herd specificity"),
+      column(3,textOutput("oHSpec"))
+    ),
+    fluidRow(
+      column(3,"Sample size"),
+      column(3,textOutput("on")),
+      column(3,"Cutpoint number of reactors"),
+      column(3,textOutput("oc"))
+    ),
+    textOutput("Ioo"),
+    plotOutput("plot",width="75%"),
     img(src='ioa_logo.png',style="width: 256px; align: left; margin-right: 2em"),
     "Darren Green (2019), with inspiration from www.ausvet.com.au",
     img(src='parasite_2.png',style="width: 64px; align: right; margin-left: 2em")
   )
+  
 )
