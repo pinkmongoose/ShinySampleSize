@@ -12,7 +12,7 @@ shinyUI(
     fluidRow(
       column(3,"Population size"),
       column(3,numericInput("N",NULL,50,min=1,max=25000,step=1)),
-      column(3,"Percentage prevalence / number of reactors"),
+      column(3,"Proportion prevalence / number of reactors"),
       column(3,numericInput("R",NULL,0.1,min=0,max=25000,step=1))
     ),
     h4("Test parameters"),
