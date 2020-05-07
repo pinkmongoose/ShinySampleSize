@@ -81,7 +81,7 @@ imperfect.testing <- function(test, pop, target) {
     } else {
       hi.n <- n
     }
-    n <- ceiling(exp(0.5*(log(lo.n)+log(hi.n))))
+    n <- ceiling(exp(0.5*(log(lo.n)+log(hi.n)))-1e-5)
     if (hi.n - lo.n < 2) {
       h <- herd.test(test, pop, n, cutpoint)
       if (h$sens < target$sens) {
