@@ -111,7 +111,7 @@ imperfect.testing <- function(test, pop, target) {
         D$Hspec <- target$spec
         D$Hn <- n
         D$warn <- warn
-        cat("t distributon sum",sum(tdist(test,pop,n)))
+        cat(sum(tdist(test,pop,n))))
         return(res)
       }      
     }
