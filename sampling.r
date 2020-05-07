@@ -21,7 +21,6 @@ sdist <- function(vp, vn, test) { # distribution of + tests out of vp/vn +/- sam
     for (n in lon:hon) {
       s[p+n+1] <- s[p+n+1] + dp[p+1]*dn[n+1]
     }
-  print(sum(s))
   return(s)
 }
 
