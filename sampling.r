@@ -133,6 +133,8 @@ RunModel <- function() {
   if (OutOfRange(input$HSens,0,0.98,"Herd sensitivity")) {D$err<-T; return()}
   if (OutOfRange(input$HSpec,0,0.98,"Herd specificity")) {D$err<-T; return()}
   pop <- list(N=input$N,R=input$R)
+  if (pop$R==1)
+    D$warn = D$warn+"Number of reactors taken as one, rather than 100% prevalence. "
   if (pop$R<1) {
     pop$R<-floor(pop$R*pop$N)
     pop$N<-floor(pop$N)
