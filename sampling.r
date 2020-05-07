@@ -115,6 +115,7 @@ imperfect.testing <- function(test, pop, target) {
       }      
     }
   }
+  cat("t distributon sum",sum(tdist(test,pop,n)))
 }
 
 OutOfRange <- function(x,min,max,name) {
