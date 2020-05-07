@@ -75,7 +75,7 @@ imperfect.testing <- function(test, pop, target) {
   repeat {
     h <- herd.test(test, pop, n, cutpoint)
     setProgress(value=n)
-#    cat(n, cutpoint, h$sens, h$spec, "\n")
+    cat(n, cutpoint, h$sens, h$spec, "\n")
     if (h$sens < target$sens) {
       lo.n <- n
     } else {
