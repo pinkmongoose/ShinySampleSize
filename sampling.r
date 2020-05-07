@@ -26,6 +26,7 @@ sdist <- function(vp, vn, test) { # distribution of + tests out of vp/vn +/- sam
 
 tdist <- function(test, pop, n) { # distribution of + tests out of sampled population.
   t <- array(0,n+1)
+cat(n,pop$R)
   rdist <- dhyper(0:n, pop$R, pop$N-pop$R, n) # distribution of + samples out of sampled pop
   for (p in 0:n) {
     s <- sdist(p, n-p, test)
