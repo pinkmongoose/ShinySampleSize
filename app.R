@@ -7,7 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 # Darren Green
-# 14/01/2021
+# 28/11/2024
 
 library(shiny)
 
@@ -78,6 +78,7 @@ ui <- fluidPage(
                         fluidRow(
                                  column(3,selectInput("preset","Preset",choices = c(
                                          'Stirling MSc default scenario'='MSc',
+                                         'Stirling MSc scenario 2'='MSc2',
                                          'Johnson et al. 2003 FMD survey'='Johnson',
                                          'Cameron et al. 1998 FMD survey'='Cameron'
                                          )))
@@ -93,7 +94,7 @@ ui <- fluidPage(
         textOutput("Ioo"),
         plotOutput("plot",width="75%"),
         img(src='ioa_logo.png',style="width: 256px; align: left; margin-right: 2em"),
-        "Darren Green (2021), with inspiration from www.ausvet.com.au",
+        "Darren Green (2021-4)",
         img(src='parasite_2.png',style="width: 64px; align: right; margin-left: 2em")
         
 )
@@ -134,6 +135,14 @@ server <- function(input, output, session) {
                         updateNumericInput(session,"betaN",value=1000000)
                         updateNumericInput(session,"alphaN",value=1000000)
                         updateSelectInput(session,"Testtype",selected="Binomial")
+                } else if (input$preset=="MSc2") {
+                        updateNumericInput(session,"N",value=50)
+                        updateNumericInput(session,"R",value=0.1)
+                        updateNumericInput(session,"beta",value=0.98)
+                        updateNumericInput(session,"alpha",value=0.98)
+                        updateNumericInput(session,"betaN",value=1000000)
+                        updateNumericInput(session,"alphaN",value=1000000)
+                        updateSelectInput(session,"Testtype",selected="Binomial")
                 } else if (input$preset=="Johnson") {
                         updateNumericInput(session,"N",value=265)
                         updateNumericInput(session,"R",value=0.3)
@@ -168,6 +177,8 @@ server <- function(input, output, session) {
                                       format(D$results[6]/D$results[5],digits=4),")",
                                       "is",
                                       format(D$results[3]+0,digits=4),
+                                      ". The area under the ROC curve is",
+                                      format(D$results[7]+0,digits=3),
                                       ".")
                         }
                 }
