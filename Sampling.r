@@ -1,6 +1,6 @@
 #Sampling.r
 #Darren Green
-#14/01/2021
+#28/11/2024
 
 #pop <- list(N=50, R=5) # population size, expected number of reactors
 #test <- list(sens=0.95, spec=0.98) # test parameters
@@ -64,6 +64,15 @@ dt <- function(n.pos, n.neg, test) {
   return(t.convolution)
 }
 
+dt0 <- function(n, test) {
+  if (test$Testtype=="BetaBinomial") {
+    t <- dbetabinom(0:n, n, (1-test$alpha)*test$alphaN, test$alpha*test$alphaN)
+  } else {
+    t <- dbinom(0:n, n, 1-test$alpha)
+  }
+  return(t)
+}
+
 dT <- function(test, pop, n) {
   # distribution of + tests out of sampled population.
   T <- array(0, n + 1)
@@ -80,17 +89,24 @@ dT <- function(test, pop, n) {
   return(T)
 }
 
+dT0 <- function(test, n) {
+  # distribution of + tests out of a population free from disease
+  dt0(n, test)
+}
+
 herd.test <- function(test, pop, n, cutpoint) {
   dTn <- dT(test, pop, n)
   B <- sum(dTn[(cutpoint + 2):(n + 1)])
-  dT0n <- dbinom(0:n, n, 1 - test$alpha)
+#  dT0n <- dbinom(0:n, n, 1 - test$alpha)
+  dT0n <- dT0(test, n)
   A <- 1 - sum(dT0n[(cutpoint + 2):(n + 1)])
   return(list(B=B, A=A))
 }
 
 herd.test.all <- function(test, pop, n) {
   dTn <- dT(test, pop, n)
-  dT0n <- dbinom(0:n, n, 1 - test$alpha)
+#  dT0n <- dbinom(0:n, n, 1 - test$alpha)
+  dT0n <- dT0(test, n)
   B <- sapply(0:(n - 1), function(cutpoint) {
     sum(dTn[(cutpoint + 2):(n + 1)])
   })
@@ -100,12 +116,23 @@ herd.test.all <- function(test, pop, n) {
   return(cbind(B,A))
 }
 
+CalculateAUC <- function(A,B) {
+  n <- length(A)+1
+  A <- c(1,A,0)
+  B <- c(1,B,0)
+  auc <- 0
+  for (i in 1:n) {
+    auc <- auc - 0.5*(A[i+1]-A[i])*(B[i+1]+B[i])
+  }
+  return(auc)
+}
+
+
 DrawROC <- function() {
   if (!length(D$H))
     plot.new()
   else {
     plot(
-#      1 - D$H$A, D$H$B,
       NULL,
       type = "o",
       xlim = c(0, 1), ylim = c(0, 1),
@@ -165,9 +192,10 @@ imperfect.testing <- function(test, pop, target, batch=FALSE) {
         }
         hi.n <- pop$N
       } else {
-        res <- c(n, cutpoint, h$B, h$A, pop$N, pop$R)
-        D$results <- res
         D$H <- as.data.frame(herd.test.all(test, pop, n))
+        auc <- CalculateAUC(1-D$H$A, D$H$B)
+        res <- c(n, cutpoint, h$B, h$A, pop$N, pop$R, auc)
+        D$results <- res
         D$HBreq <- target$Breq
         D$HAreq <- target$Areq
         D$Hn <- n
